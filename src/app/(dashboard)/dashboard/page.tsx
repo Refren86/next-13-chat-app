@@ -8,7 +8,7 @@ const DashboardPage = async ({}: Props) => {
 
   return (
     <div>
-      {JSON.stringify(session)}
+      Dashboard
     </div>
   );
 };

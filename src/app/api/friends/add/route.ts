@@ -1,10 +1,10 @@
+import { z } from 'zod';
 import { getServerSession } from 'next-auth';
 
 import { db } from '@/lib/db';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { addFriendValidator } from '@/lib/validations/add-friend';
-import { z } from 'zod';
 
 export async function POST(req: Request) {
   try {
