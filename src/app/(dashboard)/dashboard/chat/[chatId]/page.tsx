@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { fetchRedis } from '@/helpers/redis';
+import { messageArrayValidator } from '@/lib/validations/message';
 
 type PageProps = {
   params: {
@@ -18,7 +19,9 @@ async function getChatMessages(chatId: string) {
     const results: string[] = await fetchRedis('zrange', `chat:${chatId}:messages`, 0, -1) // getting sorted list from start to end
     const dbMessages = results.map((message) => JSON.parse(message) as Message);
     const reversedDbMessages = [...dbMessages].reverse();
-    // const messages = ''
+
+    const messages = messageArrayValidator.parse(reversedDbMessages); // validating all messages
+    return messages;
   } catch (error) {
     notFound();
   }
