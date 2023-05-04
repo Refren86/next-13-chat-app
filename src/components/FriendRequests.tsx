@@ -1,9 +1,12 @@
 'use client';
 
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, UserPlus, X } from 'lucide-react';
+
+import { pusherClient } from '@/lib/pusher';
+import { toPusherKey } from '@/lib/utils';
 
 type Props = {
   sessionId: string;
@@ -14,17 +17,36 @@ const FriendRequests = ({ sessionId, incomingFriendRequests }: Props) => {
   const router = useRouter();
   const [friendRequests, setFriendRequests] = useState<IncomingFriendRequest[]>(incomingFriendRequests);
 
+  useEffect(() => {
+    // subscribe for any changes in friend requests
+    pusherClient.subscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
+
+    // senderId and senderEmail coming from pusher as api response
+    const friendRequestHandler = ({ requesterId, requesterEmail }: IncomingFriendRequest) => {
+      setFriendRequests((prevRequests) => [...prevRequests, { requesterId, requesterEmail }]);
+    };
+
+    // whenever listener spots incoming_friend_requests call, trigger friendRequestHandler function
+    pusherClient.bind('incoming_friend_requests', friendRequestHandler);
+
+    // cancelling all subscriptions/listeners
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
+      pusherClient.unbind('incoming_friend_requests', friendRequestHandler);
+    };
+  }, []);
+
   const acceptFriend = async (requesterId: string) => {
     await axios.post('/api/friends/accept', { id: requesterId });
 
-    setFriendRequests(prevRequests => prevRequests.filter(req => req.requesterId !== requesterId));
+    setFriendRequests((prevRequests) => prevRequests.filter((req) => req.requesterId !== requesterId));
     router.refresh();
   };
 
   const denyFriend = async (requesterId: string) => {
     await axios.post('/api/friends/deny', { id: requesterId });
 
-    setFriendRequests(prevRequests => prevRequests.filter(req => req.requesterId !== requesterId));
+    setFriendRequests((prevRequests) => prevRequests.filter((req) => req.requesterId !== requesterId));
     router.refresh();
   };
 

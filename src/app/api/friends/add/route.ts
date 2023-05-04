@@ -5,6 +5,8 @@ import { db } from '@/lib/db';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { addFriendValidator } from '@/lib/validations/add-friend';
+import { pusherServer } from '@/lib/pusher';
+import { toPusherKey } from '@/lib/utils';
 
 export async function POST(req: Request) {
   try {
@@ -45,6 +47,12 @@ export async function POST(req: Request) {
     if (isAlreadyFriends) {
       return new Response('Friend is already added', { status: 400 });
     }
+
+    // notify client about friend request (check FriendRequests.tsx)
+    pusherServer.trigger(toPusherKey(`user:${idToAdd}:incoming_friend_requests`), 'incoming_friend_requests', {
+      requesterId: session.user.id,
+      requesterEmail: session.user.email,
+    } as IncomingFriendRequest);
 
     // send friend request if all checks succeeded (add to target user friend request the current user)
     db.sadd(`user:${idToAdd}:incoming_friend_requests`, session.user.id);
