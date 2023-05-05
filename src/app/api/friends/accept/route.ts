@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { db } from '@/lib/db';
+import { pusherServer } from '@/lib/pusher';
+import { toPusherKey } from '@/lib/utils';
 
 export async function POST(req: Request) {
   try {
@@ -34,6 +36,9 @@ export async function POST(req: Request) {
     if (!hasFriendRequest) {
       return new Response('Friend request does not exist', { status: 400 });
     }
+
+    // notify added user (listener in SidebarChatList)
+    pusherServer.trigger(toPusherKey(`user:${idToAdd}:friends`), 'new_friend', null);
 
     await db.sadd(`user:${session.user.id}:friends`, idToAdd);
     await db.sadd(`user:${idToAdd}:friends`, session.user.id);

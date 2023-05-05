@@ -18,16 +18,16 @@ const FriendRequestSidebarOptions = ({ sessionId, initialUnseenReqCount }: Frien
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
 
     const incomingReqHandler = () => {
-      setUnseenReqCount(prevCount => prevCount + 1)
-    }
+      setUnseenReqCount((prevCount) => prevCount + 1);
+    };
 
     pusherClient.bind('incoming_friend_requests', incomingReqHandler);
 
     return () => {
       pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
       pusherClient.unbind('incoming_friend_requests', incomingReqHandler);
-    }
-  }, [])
+    };
+  }, [sessionId]);
 
   return (
     <Link

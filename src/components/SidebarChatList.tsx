@@ -2,18 +2,64 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { chatHrefConstructor } from '@/lib/utils';
+import { chatHrefConstructor, toPusherKey } from '@/lib/utils';
+import { pusherClient } from '@/lib/pusher';
+import { Message } from '@/lib/validations/message';
+import { toast } from 'react-hot-toast';
+import UnseenChatToast from './UnseenChatToast';
 
 type Props = {
   friends: User[];
   sessionId: string;
 };
 
+type ExtendedMessage = Message & { senderImage: string; senderName: string };
+
 const SidebarChatList = ({ friends, sessionId }: Props) => {
   const router = useRouter();
   const [unseenMessages, setUnseenMessages] = useState<Message[]>([]);
 
   const pathname = usePathname(); // this hook returns the current path (relative)
+
+  useEffect(() => {
+    pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`));
+    pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`));
+
+    const chatHandler = (message: ExtendedMessage) => {
+      const shouldBeNotified = pathname !== `/dashboard/chat/${chatHrefConstructor(sessionId, message.senderId)}`;
+
+      if (!shouldBeNotified) return;
+
+      // should be notified
+      toast.custom((t) => (
+        // custom component
+        <UnseenChatToast
+          t={t}
+          senderId={message.senderId}
+          senderImg={message.senderImage}
+          senderMessage={message.text}
+          senderName={message.senderName}
+          sessionId={sessionId}
+        />
+      ));
+
+      setUnseenMessages(prevMessages => [...prevMessages, message])
+    };
+
+    const newFriendHandler = () => {
+      router.refresh(); // refresh without hot reload
+    };
+
+    pusherClient.bind('new_message', chatHandler);
+    pusherClient.bind('new_friend', newFriendHandler);
+
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`));
+      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:friends`));
+      pusherClient.unbind('new_message', chatHandler);
+      pusherClient.unbind('new_friend', newFriendHandler);
+    };
+  }, [pathname, sessionId, router]);
 
   useEffect(() => {
     // if user enters specific chat, sets all messages as read for this chat

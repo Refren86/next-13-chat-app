@@ -1,12 +1,13 @@
 import { getServerSession } from 'next-auth';
 
-
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { db } from '@/lib/db';
 import { Message, messageValidator } from '@/lib/validations/message';
 import { generateId } from '@/helpers/common';
 import { z } from 'zod';
+import { pusherServer } from '@/lib/pusher';
+import { toPusherKey } from '@/lib/utils';
 
 export async function POST(req: Request) {
   try {
@@ -27,8 +28,8 @@ export async function POST(req: Request) {
     const friendId = session.user.id === userId1 ? userId2 : userId1;
 
     const friendList: string[] = await fetchRedis('smembers', `user:${session.user.id}:friends`);
-    const isFriend = friendList.includes(friendId)
-    
+    const isFriend = friendList.includes(friendId);
+
     if (!isFriend) {
       return new Response('User is not in the friend list', { status: 400 });
     }
@@ -43,9 +44,18 @@ export async function POST(req: Request) {
       senderId: session.user.id,
       text,
       timestamp,
-    }
+    };
 
-    const message = messageValidator.parse(messageData)
+    const message = messageValidator.parse(messageData);
+
+    // notify client about new message
+    pusherServer.trigger(toPusherKey(`chat:${chatId}`), 'message_send', message);
+
+    pusherServer.trigger(toPusherKey(`user:${friendId}:chats`), 'new_message', {
+      ...message,
+      senderImage: sender.image,
+      senderName: sender.name,
+    });
 
     // adds to SORTED list(set)
     await db.zadd(`chat:${chatId}:messages`, {
@@ -53,12 +63,12 @@ export async function POST(req: Request) {
       member: message, // actual value of sorted set
     });
 
-    return new Response('opa')
+    return new Response('opa');
   } catch (error) {
     if (error instanceof Error) {
-      return new Response(error.message, { status: 500 })
+      return new Response(error.message, { status: 500 });
     }
 
-    return new Response('Internal server error', { status: 500 })
+    return new Response('Internal server error', { status: 500 });
   }
 }
