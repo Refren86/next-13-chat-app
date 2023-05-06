@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { getServerSession } from 'next-auth';
 
+import { db } from '@/lib/db';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
-import { db } from '@/lib/db';
 import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 
@@ -37,13 +37,24 @@ export async function POST(req: Request) {
       return new Response('Friend request does not exist', { status: 400 });
     }
 
-    // notify added user (listener in SidebarChatList)
-    pusherServer.trigger(toPusherKey(`user:${idToAdd}:friends`), 'new_friend', null);
+    const [userRaw, friendRaw]: string[] = await Promise.all([
+      fetchRedis('get', `user:${session.user.id}`),
+      fetchRedis('get', `user:${idToAdd}`),
+    ]);
 
-    await db.sadd(`user:${session.user.id}:friends`, idToAdd);
-    await db.sadd(`user:${idToAdd}:friends`, session.user.id);
-    // await db.srem(`user:${idToAdd}:outbound_friend_requests`, session.user.id); // вихідний реквест (того, хто подавав запит дружби)
-    await db.srem(`user:${session.user.id}:incoming_friend_requests`, idToAdd);
+    const user: User = JSON.parse(userRaw);
+    const friend: User = JSON.parse(friendRaw);
+
+    // notify added user (listener in SidebarChatList)
+
+    await Promise.all([
+      pusherServer.trigger(toPusherKey(`user:${idToAdd}:friends`), 'new_friend', user),
+      pusherServer.trigger(toPusherKey(`user:${session.user.id}:friends`), 'new_friend', friend),
+      db.sadd(`user:${session.user.id}:friends`, idToAdd),
+      db.sadd(`user:${idToAdd}:friends`, session.user.id),
+      // db.srem(`user:${idToAdd}:outbound_friend_requests`, session.user.id); // вихідний реквест (того, хто подавав запит дружби)
+      db.srem(`user:${session.user.id}:incoming_friend_requests`, idToAdd),
+    ]);
 
     return new Response('Friend was added');
   } catch (error) {

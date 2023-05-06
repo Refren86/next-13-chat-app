@@ -18,6 +18,7 @@ type ExtendedMessage = Message & { senderImage: string; senderName: string };
 const SidebarChatList = ({ friends, sessionId }: Props) => {
   const router = useRouter();
   const [unseenMessages, setUnseenMessages] = useState<Message[]>([]);
+  const [activeChats, setActiveChats] = useState<User[]>(friends);
 
   const pathname = usePathname(); // this hook returns the current path (relative)
 
@@ -46,8 +47,8 @@ const SidebarChatList = ({ friends, sessionId }: Props) => {
       setUnseenMessages(prevMessages => [...prevMessages, message])
     };
 
-    const newFriendHandler = () => {
-      router.refresh(); // refresh without hot reload
+    const newFriendHandler = (newFriend: User) => {
+      setActiveChats(prevChats => [...prevChats, newFriend])
     };
 
     pusherClient.bind('new_message', chatHandler);
@@ -70,7 +71,7 @@ const SidebarChatList = ({ friends, sessionId }: Props) => {
 
   return (
     <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
-      {friends.sort().map((friend) => {
+      {activeChats.sort().map((friend) => {
         const unseenMessagesCount = unseenMessages.filter((msg) => msg.senderId === friend.id).length;
 
         return (
