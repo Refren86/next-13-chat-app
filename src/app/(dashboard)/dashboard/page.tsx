@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { chatHrefConstructor } from '@/lib/utils';
+import { Message } from '@/lib/validations/message';
 import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id';
 
 const DashboardPage = async () => {
@@ -26,7 +27,7 @@ const DashboardPage = async () => {
 
       return {
         ...friend,
-        lastMessage: JSON.parse(lastMessage),
+        lastMessage: JSON.parse(lastMessage) as Message,
       };
     }),
   );
