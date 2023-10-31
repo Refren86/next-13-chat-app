@@ -33,24 +33,33 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [GoogleProvider(getGoogleCredentials())],
   callbacks: {
+    async signIn({ user }) {
+      user.isAdmin = false;
+      user.isGuest = true;
+      return true;
+    },
     async jwt({ token, user }) {
       // two ways of getting user
       // const dbUser: User | null = await db.get(`user:${token.id}`);
-      const dbUserResult: string | null = await fetchRedis('get', `user:${token.id}`);
+      const userFromDB: string | null = await fetchRedis('get', `user:${token.id}`);
 
-      if (!dbUserResult) {
-        token.id = user!.id;
+      if (!userFromDB) {
+        token.id = user.id;
+        token.isGuest = true;
+        token.isAdmin = false;
         return token;
       }
 
-      const dbUser: User = JSON.parse(dbUserResult);
+      const dbUser: User = JSON.parse(userFromDB);
 
       return {
         id: dbUser.id,
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-      }
+        isGuest: dbUser.isGuest,
+        isAdmin: dbUser.isAdmin,
+      };
     },
     async session({ token, session }) {
       if (token) {
@@ -58,12 +67,14 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.name = token.name;
         session.user.image = token.picture;
+        session.user.isGuest = token.isGuest;
+        session.user.isAdmin = token.isAdmin;
       }
 
       return session;
     },
     redirect() {
-      return '/dashboard'
-    }
-  }
+      return '/dashboard';
+    },
+  },
 };

@@ -1,10 +1,3 @@
-type User = {
-  name: string;
-  email: string;
-  image: string;
-  id: string;
-}
-
 type Chat = {
   id: string;
   messages: Message[];
