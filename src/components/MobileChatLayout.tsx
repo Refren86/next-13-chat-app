@@ -16,7 +16,7 @@ import { btnVariants, Button } from './base/Button';
 import FriendRequestSidebarOptions from './FriendRequestSidebarOptions';
 
 type MobileChatLayoutProps = {
-  friends: User[];
+  friends: AppUser[];
   session: Session;
   sidebarOptions: SidebarOption[];
   unseenRequestCount: number;

@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast';
 import UnseenChatToast from './UnseenChatToast';
 
 type Props = {
-  friends: User[];
+  friends: AppUser[];
   sessionId: string;
 };
 
@@ -18,7 +18,7 @@ type ExtendedMessage = Message & { senderImage: string; senderName: string };
 const SidebarChatList = ({ friends, sessionId }: Props) => {
   const router = useRouter();
   const [unseenMessages, setUnseenMessages] = useState<Message[]>([]);
-  const [activeChats, setActiveChats] = useState<User[]>(friends);
+  const [activeChats, setActiveChats] = useState<AppUser[]>(friends);
 
   const pathname = usePathname(); // this hook returns the current path (relative)
 
@@ -47,7 +47,7 @@ const SidebarChatList = ({ friends, sessionId }: Props) => {
       setUnseenMessages(prevMessages => [...prevMessages, message])
     };
 
-    const newFriendHandler = (newFriend: User) => {
+    const newFriendHandler = (newFriend: AppUser) => {
       setActiveChats(prevChats => [...prevChats, newFriend])
     };
 

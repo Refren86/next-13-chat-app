@@ -34,7 +34,7 @@ const Layout = async ({ children }: Props) => {
   }
 
   const friends = await getFriendsByUserId(session.user.id);
-  const incomingFriendRequests: User[] = await fetchRedis(
+  const incomingFriendRequests: AppUser[] = await fetchRedis(
     'smembers',
     `user:${session.user.id}:incoming_friend_requests`,
   );

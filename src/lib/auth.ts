@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user }) {
       // two ways of getting user
-      // const dbUser: User | null = await db.get(`user:${token.id}`);
+      // const dbUser: AppUser | null = await db.get(`user:${token.id}`);
       const userFromDB: string | null = await fetchRedis('get', `user:${token.id}`);
 
       if (!userFromDB) {
@@ -50,7 +50,7 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
-      const dbUser: User = JSON.parse(userFromDB);
+      const dbUser: AppUser = JSON.parse(userFromDB);
 
       return {
         id: dbUser.id,

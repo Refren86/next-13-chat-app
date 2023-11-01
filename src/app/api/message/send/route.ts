@@ -5,7 +5,6 @@ import { fetchRedis } from '@/helpers/redis';
 import { db } from '@/lib/db';
 import { Message, messageValidator } from '@/lib/validations/message';
 import { generateId } from '@/helpers/common';
-import { z } from 'zod';
 import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     const rawSender: string = await fetchRedis('get', `user:${session.user.id}`);
-    const sender: User = JSON.parse(rawSender);
+    const sender: AppUser = JSON.parse(rawSender);
 
     const timestamp = Date.now();
 

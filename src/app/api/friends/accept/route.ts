@@ -42,8 +42,8 @@ export async function POST(req: Request) {
       fetchRedis('get', `user:${idToAdd}`),
     ]);
 
-    const user: User = JSON.parse(userRaw);
-    const friend: User = JSON.parse(friendRaw);
+    const user: AppUser = JSON.parse(userRaw);
+    const friend: AppUser = JSON.parse(friendRaw);
 
     // notify added user (listener in SidebarChatList)
 

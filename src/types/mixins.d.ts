@@ -10,7 +10,7 @@ function applyMixins(derivedCtor: any, constructors: any[]) {
   });
 }
 
-class User {
+class AppUser {
   name: string;
   email: string;
   image: string;
@@ -34,10 +34,6 @@ class Guest {
   accessLevel = 1;
 }
 
-interface User extends Admin, Guest {}
+interface AppUser extends Admin, Guest {}
 
-const user: User = new User('John');
-
-console.log(user.isAdmin);
-
-applyMixins(User, [Admin, Guest]);
+applyMixins(AppUser, [Admin, Guest]);

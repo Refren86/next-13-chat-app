@@ -10,8 +10,8 @@ export const generateId = (length: number = 10): string => {
 
 export const millisecondsToHoursAndMinutes = (unixTimeInMs: number) => {
   const dateObj = new Date(unixTimeInMs);
-  const hours = dateObj.getUTCHours();
-  const minutes = dateObj.getUTCMinutes();
+  const hours = dateObj.getHours();
+  const minutes = dateObj.getMinutes();
 
   // padStart ensure that the hours and minutes are always displayed with 2 digits (e.g., 01, 02, 03, etc.).
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;

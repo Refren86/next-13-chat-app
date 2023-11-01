@@ -10,7 +10,7 @@ import { millisecondsToHoursAndMinutes } from '@/helpers/common';
 
 type Props = {
   chatId: string;
-  chatPartner: User;
+  chatPartner: AppUser;
   sessionImg: string | null | undefined;
   sessionId: string;
   initialMessages: Message[];

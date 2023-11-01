@@ -9,7 +9,7 @@ import { Button } from './base/Button';
 
 type Props = {
   chatId: string;
-  chatPartner: User;
+  chatPartner: AppUser;
 };
 
 const ChatInput = ({ chatId, chatPartner }: Props) => {
