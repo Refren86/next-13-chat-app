@@ -1,11 +1,10 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 
 import { authOptions } from '@/lib/auth';
-import { db } from '@/lib/db';
 import { fetchRedis } from '@/helpers/redis';
 import { messageArrayValidator } from '@/lib/validations/message';
-import Image from 'next/image';
 import Messages from '@/components/Messages';
 import ChatInput from '@/components/ChatInput';
 
@@ -19,7 +18,7 @@ type PageProps = {
 
 async function getChatMessages(chatId: string) {
   try {
-    const results: string[] = await fetchRedis('zrange', `chat:${chatId}:messages`, 0, -1) // getting sorted list from start to end
+    const results: string[] = await fetchRedis('zrange', `chat:${chatId}:messages`, 0, -1); // getting sorted list from start to end
     const dbMessages = results.map((message) => JSON.parse(message) as Message);
     const reversedDbMessages = [...dbMessages].reverse();
 
@@ -31,7 +30,6 @@ async function getChatMessages(chatId: string) {
 }
 
 const page = async ({ params }: PageProps) => {
-  await new Promise((resolve) => setTimeout(resolve, 3000))
   const { chatId } = params;
   const session = await getServerSession(authOptions);
 

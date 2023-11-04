@@ -5,8 +5,9 @@ const upstashRedisRestToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 // sismember is used to check if a member exists in a set.
 // get is used to retrieve the value of a key.
 // smembers is used to retrieve all members of a set.
+// mget is used to retrieve multiple keys.
 
-type RedisCommands = 'zrange' | 'sismember' | 'get' | 'smembers';
+type RedisCommands = 'zrange' | 'sismember' | 'get' | 'smembers' | 'mget';
 
 export async function fetchRedis(command: RedisCommands, ...args: (string | number)[]) {
   const commandUrl = `${upstashRedisURL}/${command}/${args.join('/')}`;

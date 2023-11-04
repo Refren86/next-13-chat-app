@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+
 import { chatHrefConstructor, toPusherKey } from '@/lib/utils';
 import { pusherClient } from '@/lib/pusher';
 import { Message } from '@/lib/validations/message';
-import { toast } from 'react-hot-toast';
 import UnseenChatToast from './UnseenChatToast';
 
 type Props = {

@@ -8,16 +8,16 @@ import { toPusherKey } from '@/lib/utils';
 import { pusherClient } from '@/lib/pusher';
 
 type FriendRequestSidebarOptionsProps = {
-  sessionId: string;
+  userId: string;
   initialUnseenReqCount: number;
 };
 
-const FriendRequestSidebarOptions = ({ sessionId, initialUnseenReqCount }: FriendRequestSidebarOptionsProps) => {
+const FriendRequestSidebarOptions = ({ userId, initialUnseenReqCount }: FriendRequestSidebarOptionsProps) => {
   const [unseenReqCount, setUnseenReqCount] = useState<number>(initialUnseenReqCount);
 
   useEffect(() => {
-    pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`));
-    pusherClient.subscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
+    pusherClient.subscribe(toPusherKey(`user:${userId}:friends`));
+    pusherClient.subscribe(toPusherKey(`user:${userId}:incoming_friend_requests`));
 
     const newFriendHandler = () => {
       setUnseenReqCount((prevCount) => prevCount - 1);
@@ -31,13 +31,13 @@ const FriendRequestSidebarOptions = ({ sessionId, initialUnseenReqCount }: Frien
     pusherClient.bind('incoming_friend_requests', incomingReqHandler);
 
     return () => {
-      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:friends`));
-      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
+      pusherClient.unsubscribe(toPusherKey(`user:${userId}:friends`));
+      pusherClient.unsubscribe(toPusherKey(`user:${userId}:incoming_friend_requests`));
 
       pusherClient.unbind('new_friend', newFriendHandler);
       pusherClient.unbind('incoming_friend_requests', incomingReqHandler);
     };
-  }, [sessionId]);
+  }, [userId]);
 
   return (
     <Link

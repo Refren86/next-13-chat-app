@@ -9,19 +9,19 @@ import { pusherClient } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 
 type Props = {
-  sessionId: string;
+  userId: string;
   incomingFriendRequests: IncomingFriendRequest[];
 };
 
-const FriendRequests = ({ sessionId, incomingFriendRequests }: Props) => {
+const FriendRequests = ({ userId, incomingFriendRequests }: Props) => {
   const router = useRouter();
   const [friendRequests, setFriendRequests] = useState<IncomingFriendRequest[]>(incomingFriendRequests);
 
   useEffect(() => {
     // subscribe for any changes in friend requests
-    pusherClient.subscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
+    pusherClient.subscribe(toPusherKey(`user:${userId}:incoming_friend_requests`));
 
-    // senderId and senderEmail coming from pusher as api response
+    // requesterId and requesterEmail coming from pusher as api response
     const friendRequestHandler = ({ requesterId, requesterEmail }: IncomingFriendRequest) => {
       setFriendRequests((prevRequests) => [...prevRequests, { requesterId, requesterEmail }]);
     };
@@ -31,10 +31,10 @@ const FriendRequests = ({ sessionId, incomingFriendRequests }: Props) => {
 
     // cancelling all subscriptions/listeners
     return () => {
-      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:incoming_friend_requests`));
+      pusherClient.unsubscribe(toPusherKey(`user:${userId}:incoming_friend_requests`));
       pusherClient.unbind('incoming_friend_requests', friendRequestHandler);
     };
-  }, [sessionId]);
+  }, [userId]);
 
   const acceptFriend = async (requesterId: string) => {
     await axios.post('/api/friends/accept', { id: requesterId });

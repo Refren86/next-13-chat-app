@@ -12,5 +12,5 @@ export function chatHrefConstructor(id1: string, id2: string) {
 }
 
 export const toPusherKey = (key: string) => {
-  return key.replace(/:/g, '__') // replaces all : with __ (pusher doesn't work with :)
+  return key.replaceAll(/:/g, '__') // replaces all ":" with "__" (pusher doesn't work with ":")
 }

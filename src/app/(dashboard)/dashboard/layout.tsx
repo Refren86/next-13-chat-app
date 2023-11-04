@@ -24,6 +24,12 @@ const sidebarOptions: SidebarOption[] = [
     href: '/dashboard/add',
     Icon: 'UserPlus',
   },
+  {
+    id: 2,
+    name: 'Create group',
+    href: '/dashboard/group/create',
+    Icon: 'Users',
+  },
 ];
 
 const Layout = async ({ children }: Props) => {
@@ -89,7 +95,7 @@ const Layout = async ({ children }: Props) => {
                 {/* Friend requests */}
                 <li>
                   <FriendRequestSidebarOptions
-                    sessionId={session.user.id}
+                    userId={session.user.id}
                     initialUnseenReqCount={incomingFriendRequests.length}
                   />
                 </li>
