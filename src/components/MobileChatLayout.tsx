@@ -86,7 +86,7 @@ const MobileChatLayout = ({ friends, session, sidebarOptions, unseenRequestCount
                         <nav className="flex flex-1 flex-col">
                           <ul role="list" className="flex flex-1 flex-col gap-y-7">
                             <li>
-                              <SidebarChatList friends={friends} sessionId={session.user.id} />
+                              <SidebarChatList friends={friends} userId={session.user.id} />
                             </li>
 
                             <li>

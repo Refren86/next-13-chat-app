@@ -12,6 +12,8 @@ import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id';
 import FriendRequestSidebarOptions from '@/components/FriendRequestSidebarOptions';
 import MobileChatLayout from '@/components/MobileChatLayout';
 import { SidebarOption } from '@/types/general';
+import SidebarGroupChatList from '@/components/SidebarGroupChatList';
+import { getGroupChatsByUserId } from '@/helpers/get-group-chats-by-user-id';
 
 type Props = {
   children: React.ReactNode;
@@ -40,6 +42,7 @@ const Layout = async ({ children }: Props) => {
   }
 
   const friends = await getFriendsByUserId(session.user.id);
+  const groupChats = await getGroupChatsByUserId(session.user.id);
   const incomingFriendRequests: AppUser[] = await fetchRedis(
     'smembers',
     `user:${session.user.id}:incoming_friend_requests`,
@@ -67,7 +70,11 @@ const Layout = async ({ children }: Props) => {
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
-              <SidebarChatList friends={friends} sessionId={session.user.id} />
+              <SidebarGroupChatList groupChats={groupChats} userId={session.user.id} />
+            </li>
+
+            <li>
+              <SidebarChatList friends={friends} userId={session.user.id} />
             </li>
 
             <li>

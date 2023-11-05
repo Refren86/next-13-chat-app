@@ -16,6 +16,7 @@ const DashboardPage = async () => {
   if (!session) notFound();
 
   const friends = await getFriendsByUserId(session.user.id);
+
   const friendsWithLastMessage = await Promise.all(
     friends.map(async (friend) => {
       const [lastMessage]: string[] = await fetchRedis(
@@ -27,7 +28,7 @@ const DashboardPage = async () => {
 
       return {
         ...friend,
-        lastMessage: JSON.parse(lastMessage) as Message,
+        lastMessage: lastMessage ? (JSON.parse(lastMessage) as Message) : null,
       };
     }),
   );
@@ -64,9 +65,9 @@ const DashboardPage = async () => {
                 <h4 className="text-lg font-semibold">{friend.name}</h4>
                 <p className="mt-1 max-w-md">
                   <span className="text-zinc-400">
-                    {friend.lastMessage.senderId === session.user.id ? 'You: ' : ''}
+                    {friend?.lastMessage?.senderId === session.user.id ? 'You: ' : ''}
                   </span>
-                  {friend.lastMessage.text}
+                  {friend?.lastMessage?.text}
                 </p>
               </div>
             </Link>

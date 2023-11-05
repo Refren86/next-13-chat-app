@@ -6,13 +6,18 @@ import { useForm } from 'react-hook-form';
 
 import Input from './base/Input';
 import { Button } from './base/Button';
+import axios from 'axios';
 
 type CreateGroupFormProps = {
   friends: AppUser[];
 };
 
+type GroupInputs = {
+  chatName: string;
+};
+
 const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset } = useForm<GroupInputs>();
 
   const [selectedFriendsIds, setSelectedFriendsIds] = useState<string[]>([]);
 
@@ -24,14 +29,25 @@ const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
       : setSelectedFriendsIds((prevIds) => [...prevIds, id]);
   };
 
+  const submit = async (data: GroupInputs) => {
+    const { chatName } = data;
+
+    await axios.post('/api/group-chat/create', {
+      chatName,
+      userIds: selectedFriendsIds,
+    });
+
+    reset();
+  };
+
   return friends.length > 0 ? (
-    <form className="max-w-sm">
-      <Input id="group" label="Group name" placeholder="Enter group name" register={register} />
+    <form className="max-w-sm" onSubmit={handleSubmit(submit)}>
+      <Input id="chatName" label="Group name" placeholder="Enter group name" register={register} />
       <div className="mt-6">
         <h2 className="mb-4 text-xl text-bold">Add friends to the group</h2>
 
         {friends.map((friend) => (
-          <div key={friend.email} className="flex justify-between items-center">
+          <div key={friend.email} className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-x-4">
               <div className="relative w-16 h-16 rounded-full overflow-hidden">
                 <Image src={friend.image} alt={friend.name} fill />

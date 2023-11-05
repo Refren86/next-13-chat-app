@@ -6,8 +6,9 @@ const upstashRedisRestToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 // get is used to retrieve the value of a key.
 // smembers is used to retrieve all members of a set.
 // mget is used to retrieve multiple keys.
+// hgetall is used to retrieve all fields and values of a hash.
 
-type RedisCommands = 'zrange' | 'sismember' | 'get' | 'smembers' | 'mget';
+type RedisCommands = 'zrange' | 'sismember' | 'get' | 'smembers' | 'mget' | 'hgetall';
 
 export async function fetchRedis(command: RedisCommands, ...args: (string | number)[]) {
   const commandUrl = `${upstashRedisURL}/${command}/${args.join('/')}`;
@@ -19,7 +20,7 @@ export async function fetchRedis(command: RedisCommands, ...args: (string | numb
   });
 
   if (!response.ok) {
-    throw new Error('Error executing redis command: ' + response.statusText)
+    throw new Error('Error executing redis command: ' + response.statusText);
   }
 
   const data = await response.json();
