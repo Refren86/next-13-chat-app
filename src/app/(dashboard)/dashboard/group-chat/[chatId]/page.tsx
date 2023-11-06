@@ -7,6 +7,7 @@ import { fetchRedis } from '@/helpers/redis';
 import { messageArrayValidator } from '@/lib/validations/message';
 import Messages from '@/components/Messages';
 import ChatInput from '@/components/ChatInput';
+import { getGroupChatByKey } from '@/helpers/get-group-chat-by-key';
 
 type PageProps = {
   params: {
@@ -14,11 +15,9 @@ type PageProps = {
   };
 };
 
-// url: /chat/userId1--userId2
-
 async function getChatMessages(chatId: string) {
   try {
-    const results: string[] = await fetchRedis('zrange', `chat:${chatId}:messages`, 0, -1); // getting sorted list from start to end
+    const results: string[] = await fetchRedis('zrange', `group-chat:${chatId}:messages`, 0, -1); // getting sorted list from start to end
     const dbMessages = results.map((message) => JSON.parse(message) as Message);
     const reversedDbMessages = [...dbMessages].reverse();
 
@@ -35,17 +34,14 @@ const page = async ({ params }: PageProps) => {
 
   if (!session) notFound();
 
-  const { user } = session;
+  // Here should be all chat users
+  // const chatPartnerId = user.id === userId1 ? userId2 : userId1;
+  const groupChatMembersIds: string[] = await fetchRedis('smembers', `group_chat:${chatId}:members`);
+  const groupChatMembersRaw: string[] = await fetchRedis('mget', ...groupChatMembersIds.map((id) => `user:${id}`));
+  const groupChatMembers = groupChatMembersRaw.map((member) => JSON.parse(member) as AppUser);
 
-  const [userId1, userId2] = chatId.split('--');
-
-  if (user.id !== userId1 && user.id !== userId2) {
-    notFound();
-  }
-
-  const chatPartnerId = user.id === userId1 ? userId2 : userId1;
-  const chatPartnerRaw: string = await fetchRedis('get', `user:${chatPartnerId}`);
-  const chatPartner: AppUser = JSON.parse(chatPartnerRaw);
+  // get group chat info
+  const groupChatInfo = await getGroupChatByKey(`group_chat:${chatId}`);
 
   const initialMessages = await getChatMessages(chatId);
 
@@ -54,23 +50,15 @@ const page = async ({ params }: PageProps) => {
       <div className="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
         <div className="relative flex items-center space-x-4">
           <div className="relative">
-            <div className="relative w-8 sm:w-12 h-8 sm:h-12">
-              <Image
-                fill
-                referrerPolicy="no-referrer"
-                src={chatPartner.image}
-                alt={`${chatPartner.name} profile picture`}
-                className="rounded-full"
-              />
-            </div>
+            <div className="relative w-8 sm:w-12 h-8 sm:h-12">{/* Chat image */}</div>
           </div>
 
           <div className="flex flex-col leading-tight">
             <div className="text-xl flex items-center">
-              <span className="text-gray-700 mr-3 font-semibold">{chatPartner.name}</span>
+              <span className="text-gray-700 mr-3 font-semibold">{groupChatInfo.chatName}</span>
             </div>
 
-            <span className="text-sm text-gray-600">{chatPartner.email}</span>
+            <span className="text-sm text-gray-600">Participants: {groupChatMembers.length}</span>
           </div>
         </div>
       </div>
@@ -80,9 +68,10 @@ const page = async ({ params }: PageProps) => {
         userImg={session.user.image}
         userId={session.user.id}
         initialMessages={initialMessages}
+        isGroupChat
       />
 
-      <ChatInput chatId={chatId} />
+      <ChatInput chatId={chatId} isGroupChat />
     </div>
   );
 };

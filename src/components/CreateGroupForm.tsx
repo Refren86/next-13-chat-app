@@ -1,12 +1,12 @@
 'use client';
 
+import axios from 'axios';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Input from './base/Input';
 import { Button } from './base/Button';
-import axios from 'axios';
 
 type CreateGroupFormProps = {
   friends: AppUser[];

@@ -10,30 +10,45 @@ import { millisecondsToHoursAndMinutes } from '@/helpers/common';
 
 type Props = {
   chatId: string;
-  chatPartner: AppUser;
-  sessionImg: string | null | undefined;
-  sessionId: string;
+  userImg: string | null | undefined;
+  userId: string;
   initialMessages: Message[];
+  isGroupChat?: boolean;
 };
 
-const Messages = ({ chatId, chatPartner, initialMessages, sessionId, sessionImg }: Props) => {
+const Messages = ({ chatId, initialMessages, userId, userImg, isGroupChat }: Props) => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
 
   const scrollDownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    pusherClient.subscribe(toPusherKey(`chat:${chatId}`));
+    if (isGroupChat) {
+      pusherClient.subscribe(toPusherKey(`group-chat:${chatId}`));
 
-    const sendMessageHandler = (message: Message) => {
-      setMessages((prevMessages) => [message, ...prevMessages]);
-    };
+      const sendMessageHandler = (message: Message) => {
+        setMessages((prevMessages) => [message, ...prevMessages]);
+      };
 
-    pusherClient.bind('message_send', sendMessageHandler);
+      pusherClient.bind('message_send', sendMessageHandler);
 
-    return () => {
-      pusherClient.unsubscribe(toPusherKey(`chat:${chatId}`));
-      pusherClient.unbind('message_send', sendMessageHandler);
-    };
+      return () => {
+        pusherClient.unsubscribe(toPusherKey(`group-chat:${chatId}`));
+        pusherClient.unbind('message_send', sendMessageHandler);
+      };
+    } else {
+      pusherClient.subscribe(toPusherKey(`chat:${chatId}`));
+
+      const sendMessageHandler = (message: Message) => {
+        setMessages((prevMessages) => [message, ...prevMessages]);
+      };
+
+      pusherClient.bind('message_send', sendMessageHandler);
+
+      return () => {
+        pusherClient.unsubscribe(toPusherKey(`chat:${chatId}`));
+        pusherClient.unbind('message_send', sendMessageHandler);
+      };
+    }
   }, [chatId]);
 
   return (
@@ -44,7 +59,7 @@ const Messages = ({ chatId, chatPartner, initialMessages, sessionId, sessionImg 
       <div ref={scrollDownRef} />
 
       {messages.map((msg, idx) => {
-        const isCurrentUser = msg.senderId === sessionId;
+        const isCurrentUser = msg.senderId === userId;
         const hasNextMsgFromSameUser = messages[idx - 1]?.senderId === messages[idx].senderId;
 
         return (
@@ -82,7 +97,7 @@ const Messages = ({ chatId, chatPartner, initialMessages, sessionId, sessionImg 
               >
                 <Image
                   fill
-                  src={isCurrentUser ? (sessionImg as string) : chatPartner.image}
+                  src={isCurrentUser ? (userImg as string) : msg.senderImage}
                   alt="Profile picture"
                   referrerPolicy="no-referrer"
                   className="rounded-full"

@@ -10,7 +10,7 @@ import { toPusherKey } from '@/lib/utils';
 
 export async function POST(req: Request) {
   try {
-    const { text, chatName, chatId }: { text: string; chatName: string; chatId: string } = await req.json();
+    const { text, chatId }: { text: string; chatId: string } = await req.json();
 
     const session = await getServerSession(authOptions);
 
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
     const messageData: Message = {
       id: generateId(),
       senderId: session.user.id,
+      senderImage: session.user.image || '', // TODO: add default user image
       text,
       timestamp,
     };
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
     const message = messageValidator.parse(messageData);
 
     // notify client about new message
-    pusherServer.trigger(toPusherKey(`group-chat:${chatName}:${chatId}`), 'message_send', message);
+    pusherServer.trigger(toPusherKey(`group-chat:${chatId}`), 'message_send', message);
 
     // all chat members should be notified
     pusherServer.trigger(toPusherKey(`group-chat:${chatId}:messages`), 'new_message', {

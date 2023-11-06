@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     const messageData: Message = {
       id: generateId(),
       senderId: session.user.id,
+      senderImage: session.user.image || '', // TODO: add default user image
       text,
       timestamp,
     };

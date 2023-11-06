@@ -9,10 +9,10 @@ import { Button } from './base/Button';
 
 type Props = {
   chatId: string;
-  chatPartner: AppUser;
+  isGroupChat?: boolean;
 };
 
-const ChatInput = ({ chatId, chatPartner }: Props) => {
+const ChatInput = ({ chatId, isGroupChat }: Props) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [input, setInput] = useState<string>('');
@@ -20,15 +20,19 @@ const ChatInput = ({ chatId, chatPartner }: Props) => {
 
   const sendMessage = async () => {
     if (!input) return;
-    
+
     setLoading(true);
 
     try {
-      await axios.post('/api/message/send', { text: input, chatId });
+      if (isGroupChat) {
+        await axios.post('/api/group-chat/send-message', { text: input, chatId });
+      } else {
+        await axios.post('/api/message/send', { text: input, chatId });
+      }
       setInput('');
       textareaRef.current?.focus();
     } catch {
-      toast.error('Something went wrong')
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -42,7 +46,7 @@ const ChatInput = ({ chatId, chatPartner }: Props) => {
           rows={1}
           onChange={(e) => setInput(e.target.value)}
           value={input}
-          placeholder={`Message ${chatPartner.name}`}
+          placeholder={`Enter your message`}
           onKeyDown={(e) => {
             // if user pressed enter and not Shift + enter
             if (e.key === 'Enter' && !e.shiftKey) {
