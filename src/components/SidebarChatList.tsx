@@ -26,7 +26,6 @@ const SidebarChatList = ({ friends, userId }: Props) => {
   useEffect(() => {
     pusherClient.subscribe(toPusherKey(`user:${userId}:chats`));
     pusherClient.subscribe(toPusherKey(`user:${userId}:friends`));
-    pusherClient.subscribe(toPusherKey(`user:${userId}:group_chat_invite`));
 
     const chatHandler = (message: ExtendedMessage) => {
       const shouldBeNotified = pathname !== `/dashboard/chat/${chatHrefConstructor(userId, message.senderId)}`;
@@ -51,24 +50,8 @@ const SidebarChatList = ({ friends, userId }: Props) => {
       setActiveChats((prevChats) => [...prevChats, newFriend]);
     };
 
-    const chatInvitationHandler = (chatInvitation: GroupChat) => {
-      // here should be similar check as in chatHandler when to notify user
-
-      toast.custom((t) => (
-        <UnseenChatToast
-          t={t}
-          senderId={chatInvitation.id}
-          senderImg={chatInvitation.creator.image}
-          senderMessage={`Has invited you to a group chat ${chatInvitation.chatName}`}
-          senderName={chatInvitation.creator.name}
-          userId={userId}
-        />
-      ));
-    };
-
     pusherClient.bind('new_message', chatHandler);
     pusherClient.bind('new_friend', newFriendHandler);
-    pusherClient.bind('chat_invite', chatInvitationHandler);
 
     return () => {
       pusherClient.unsubscribe(toPusherKey(`user:${userId}:chats`));
@@ -76,7 +59,6 @@ const SidebarChatList = ({ friends, userId }: Props) => {
       pusherClient.unsubscribe(toPusherKey(`user:${userId}:group_chat_invite`));
       pusherClient.unbind('new_message', chatHandler);
       pusherClient.unbind('new_friend', newFriendHandler);
-      pusherClient.unbind('new_friend', chatInvitationHandler);
     };
   }, [pathname, userId, router]);
 

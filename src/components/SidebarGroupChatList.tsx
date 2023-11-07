@@ -14,7 +14,7 @@ type Props = {
   userId: string;
 };
 
-type ExtendedMessage = Message & { senderImage: string; senderName: string }; // TODO: create mixin for this
+type ExtendedMessage = Message & { senderImage: string; senderName: string; chatId: string }; // TODO: create mixin for this
 
 const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
   const router = useRouter();
@@ -26,9 +26,11 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
   useEffect(() => {
     pusherClient.subscribe(toPusherKey(`user:${userId}:group_chat_invite`));
 
-    const chatInvitationHandler = (chatInvitation: GroupChat) => {
-      // TODO: here should be similar check as in chatHandler when to notify user
+    groupChats.forEach((groupChat) => {
+      pusherClient.subscribe(toPusherKey(`group-chat:${groupChat.id}:messages`));
+    });
 
+    const chatInvitationHandler = (chatInvitation: GroupChat) => {
       toast.custom((t) => (
         <UnseenChatToast
           t={t}
@@ -39,29 +41,53 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
           userId={userId}
         />
       ));
+
+      setActiveChats((prevChats) => [...prevChats, chatInvitation]);
     };
 
-    // TODO: add a listener for messages and then increment unseen messages count
+    const chatHandler = (message: ExtendedMessage) => {
+      const shouldBeNotified = pathname !== `/dashboard/group-chat/${message.chatId}`;
+
+      if (!shouldBeNotified) return;
+
+      toast.custom((t) => (
+        <UnseenChatToast
+          t={t}
+          senderId={message.senderId}
+          senderImg={message.senderImage}
+          senderMessage={message.text}
+          senderName={message.chatName || ""}
+          userId={userId}
+        />
+      ));
+
+      setUnseenMessages((prevMessages) => [...prevMessages, message]);
+    };
 
     pusherClient.bind('chat_invite', chatInvitationHandler);
+    pusherClient.bind('new_group_message', chatHandler);
 
     return () => {
       pusherClient.unsubscribe(toPusherKey(`user:${userId}:group_chat_invite`));
-      pusherClient.unbind('new_friend', chatInvitationHandler);
+      groupChats.forEach((groupChat) => {
+        pusherClient.unsubscribe(toPusherKey(`group-chat:${groupChat.id}:messages`));
+      });
+      pusherClient.unbind('chat_invite', chatInvitationHandler);
+      pusherClient.unbind('new_group_message', chatInvitationHandler);
     };
   }, [pathname, userId, router]);
 
   useEffect(() => {
     // if user enters specific chat, sets all messages as read for this chat
-    if (pathname?.includes('chat')) {
-      setUnseenMessages((prevMessages) => prevMessages.filter((msg) => !pathname.includes(msg.senderId)));
+    if (pathname?.includes('group-chat')) {
+      setUnseenMessages((prevMessages) => prevMessages.filter((msg) => msg.chatId && !pathname.includes(msg.chatId)));
     }
   }, [pathname]);
 
   return (
     <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
       {activeChats.sort().map((chat) => {
-        // const unseenMessagesCount = unseenMessages.filter((msg) => msg.senderId === friend.id).length;
+        const unseenMessagesCount = unseenMessages.filter((msg) => msg.chatId === chat.id).length;
 
         return (
           <li key={chat.id}>
@@ -70,11 +96,11 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
               className="text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
             >
               {chat.chatName}
-              {/* {unseenMessagesCount > 0 && (
+              {unseenMessagesCount > 0 && (
                 <div className="bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full grid place-items-center">
                   {unseenMessagesCount}
                 </div>
-              )} */}
+              )}
             </a>
           </li>
         );

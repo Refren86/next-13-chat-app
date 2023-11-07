@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 
@@ -34,23 +33,26 @@ const page = async ({ params }: PageProps) => {
 
   if (!session) notFound();
 
-  // Here should be all chat users
-  // const chatPartnerId = user.id === userId1 ? userId2 : userId1;
   const groupChatMembersIds: string[] = await fetchRedis('smembers', `group_chat:${chatId}:members`);
   const groupChatMembersRaw: string[] = await fetchRedis('mget', ...groupChatMembersIds.map((id) => `user:${id}`));
   const groupChatMembers = groupChatMembersRaw.map((member) => JSON.parse(member) as AppUser);
 
   // get group chat info
   const groupChatInfo = await getGroupChatByKey(`group_chat:${chatId}`);
-
   const initialMessages = await getChatMessages(chatId);
 
   return (
     <div className="flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]">
       <div className="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
-        <div className="relative flex items-center space-x-4">
-          <div className="relative">
-            <div className="relative w-8 sm:w-12 h-8 sm:h-12">{/* Chat image */}</div>
+        <div className="flex items-center space-x-4">
+          <div className="relative w-8 sm:w-12 h-8 sm:h-12">
+            <div className="flex justify-center items-center w-full h-full rounded-full bg-emerald-700 text-white cursor-pointer">
+              <h2>
+                {groupChatInfo.chatName.length > 4
+                  ? `${groupChatInfo.chatName.slice(0, 3)}...`
+                  : groupChatInfo.chatName}
+              </h2>
+            </div>
           </div>
 
           <div className="flex flex-col leading-tight">

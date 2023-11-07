@@ -7,6 +7,7 @@ import { Message, messageValidator } from '@/lib/validations/message';
 import { generateId } from '@/helpers/common';
 import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
+import { getGroupChatByKey } from '@/helpers/get-group-chat-by-key';
 
 export async function POST(req: Request) {
   try {
@@ -18,13 +19,16 @@ export async function POST(req: Request) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const rawSender: string = await fetchRedis('get', `user:${session.user.id}`);
-    const sender: AppUser = JSON.parse(rawSender);
+    const groupChatInfo = await getGroupChatByKey(`group_chat:${chatId}`);
+
+    // handle case when chat does not exist
 
     const timestamp = Date.now();
 
     const messageData: Message = {
       id: generateId(),
+      chatId,
+      chatName: groupChatInfo.chatName,
       senderId: session.user.id,
       senderImage: session.user.image || '', // TODO: add default user image
       text,
@@ -34,13 +38,13 @@ export async function POST(req: Request) {
     const message = messageValidator.parse(messageData);
 
     // notify client about new message
-    pusherServer.trigger(toPusherKey(`group-chat:${chatId}`), 'message_send', message);
+    pusherServer.trigger(toPusherKey(`group-chat:${chatId}`), 'message_send', message); // TODO: use this!
 
     // all chat members should be notified
-    pusherServer.trigger(toPusherKey(`group-chat:${chatId}:messages`), 'new_message', {
+    pusherServer.trigger(toPusherKey(`group-chat:${chatId}:messages`), 'new_group_message', {
       ...message,
-      senderImage: sender.image,
-      senderName: sender.name,
+      senderImage: session.user.image,
+      senderName: session.user.name,
     });
 
     // adds to SORTED list(set)

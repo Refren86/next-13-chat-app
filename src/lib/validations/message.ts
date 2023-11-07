@@ -6,6 +6,8 @@ export const messageValidator = z.object({
   senderImage: z.string(),
   text: z.string(),
   timestamp: z.number(),
+  chatId: z.string().optional(),
+  chatName: z.string().optional(),
 });
 
 export const messageArrayValidator = z.array(messageValidator); // this will validate each message in array
