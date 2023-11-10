@@ -25,7 +25,7 @@ const ChatInput = ({ chatId, isGroupChat }: Props) => {
 
     try {
       if (isGroupChat) {
-        await axios.post('/api/group-chat/send-message', { text: input, chatId });
+        await axios.post('/api/group-chat/send-message', { text: input, groupChatId: chatId });
       } else {
         await axios.post('/api/message/send', { text: input, chatId });
       }

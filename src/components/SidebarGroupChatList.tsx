@@ -6,15 +6,13 @@ import { toast } from 'react-hot-toast';
 
 import { toPusherKey } from '@/lib/utils';
 import { pusherClient } from '@/lib/pusher';
-import { Message } from '@/lib/validations/message';
 import UnseenChatToast from './UnseenChatToast';
+import { Message } from '@/mixins/Message';
 
 type Props = {
   groupChats: GroupChat[];
   userId: string;
 };
-
-type ExtendedMessage = Message & { senderImage: string; senderName: string; chatId: string }; // TODO: create mixin for this
 
 const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
   const router = useRouter();
@@ -34,6 +32,7 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
       toast.custom((t) => (
         <UnseenChatToast
           t={t}
+          href={`/dashboard/group-chat/${chatInvitation.id}`}
           senderId={chatInvitation.id}
           senderImg={chatInvitation.creator.image}
           senderMessage={`Has invited you to a group chat ${chatInvitation.chatName}`}
@@ -45,19 +44,22 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
       setActiveChats((prevChats) => [...prevChats, chatInvitation]);
     };
 
-    const chatHandler = (message: ExtendedMessage) => {
-      const shouldBeNotified = pathname !== `/dashboard/group-chat/${message.chatId}`;
+    const chatHandler = (message: Message) => {
+      const shouldBeNotified = pathname !== `/dashboard/group-chat/${message.groupChatId}`;
 
       if (!shouldBeNotified) return;
 
       toast.custom((t) => (
         <UnseenChatToast
           t={t}
+          href={`/dashboard/group-chat/${message.groupChatId}`}
           senderId={message.senderId}
           senderImg={message.senderImage}
           senderMessage={message.text}
-          senderName={message.chatName || ""}
+          senderName={message.senderName || ''}
           userId={userId}
+          isGroupChat
+          chatName={message.groupChatName || ''}
         />
       ));
 
@@ -79,15 +81,17 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
 
   useEffect(() => {
     // if user enters specific chat, sets all messages as read for this chat
-    if (pathname?.includes('group-chat')) {
-      setUnseenMessages((prevMessages) => prevMessages.filter((msg) => msg.chatId && !pathname.includes(msg.chatId)));
+    if (pathname?.includes('/dashboard/group-chat')) {
+      setUnseenMessages((prevMessages) =>
+        prevMessages.filter((msg) => msg.groupChatId && !pathname.includes(msg.groupChatId)),
+      );
     }
   }, [pathname]);
 
   return (
     <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
       {activeChats.sort().map((chat) => {
-        const unseenMessagesCount = unseenMessages.filter((msg) => msg.chatId === chat.id).length;
+        const unseenMessagesCount = unseenMessages.filter((msg) => msg.groupChatId === chat.id).length;
 
         return (
           <li key={chat.id}>

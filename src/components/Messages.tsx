@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { cn, toPusherKey } from '@/lib/utils';
 import { pusherClient } from '@/lib/pusher';
-import { Message } from '@/lib/validations/message';
 import { millisecondsToHoursAndMinutes } from '@/helpers/common';
+import { Message } from '@/mixins/Message';
 
 type Props = {
   chatId: string;

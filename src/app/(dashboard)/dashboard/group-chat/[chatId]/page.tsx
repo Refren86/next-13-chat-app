@@ -3,10 +3,12 @@ import { getServerSession } from 'next-auth';
 
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
-import { messageArrayValidator } from '@/lib/validations/message';
+import { groupChatMessageArrayValidator } from '@/lib/validations/message';
 import Messages from '@/components/Messages';
 import ChatInput from '@/components/ChatInput';
 import { getGroupChatByKey } from '@/helpers/get-group-chat-by-key';
+import { Message } from '@/mixins/Message';
+import { AppUser } from '@/mixins/AppUser';
 
 type PageProps = {
   params: {
@@ -20,7 +22,7 @@ async function getChatMessages(chatId: string) {
     const dbMessages = results.map((message) => JSON.parse(message) as Message);
     const reversedDbMessages = [...dbMessages].reverse();
 
-    const messages = messageArrayValidator.parse(reversedDbMessages); // validating all messages
+    const messages = groupChatMessageArrayValidator.parse(reversedDbMessages); // validating all messages
     return messages;
   } catch (error) {
     notFound();
@@ -48,7 +50,7 @@ const page = async ({ params }: PageProps) => {
           <div className="relative w-8 sm:w-12 h-8 sm:h-12">
             <div className="flex justify-center items-center w-full h-full rounded-full bg-emerald-700 text-white cursor-pointer">
               <h2>
-                {groupChatInfo.chatName.length > 4
+                {groupChatInfo.chatName?.length > 4
                   ? `${groupChatInfo.chatName.slice(0, 3)}...`
                   : groupChatInfo.chatName}
               </h2>

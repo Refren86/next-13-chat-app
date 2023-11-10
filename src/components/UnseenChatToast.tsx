@@ -1,18 +1,31 @@
 import Image from 'next/image';
 import { type Toast, toast } from 'react-hot-toast';
 
-import { chatHrefConstructor, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 type UnseenChatToastProps = {
   t: Toast;
+  href: string;
   userId: string;
   senderId: string;
   senderImg: string;
   senderName: string;
   senderMessage: string;
+  isGroupChat?: boolean;
+  chatName?: string;
 };
 
-const UnseenChatToast = ({ senderId, senderImg, senderMessage, senderName, userId, t }: UnseenChatToastProps) => {
+const UnseenChatToast = ({
+  t,
+  href,
+  senderId,
+  senderImg,
+  senderMessage,
+  senderName,
+  userId,
+  isGroupChat,
+  chatName,
+}: UnseenChatToastProps) => {
   return (
     <div
       className={cn(
@@ -23,11 +36,7 @@ const UnseenChatToast = ({ senderId, senderImg, senderMessage, senderName, userI
         },
       )}
     >
-      <a
-        onClick={() => toast.dismiss(t.id)}
-        href={`/dashboard/chat/${chatHrefConstructor(userId, senderId)}`} // send via props
-        className="flex-1 w-0 p-4"
-      >
+      <a onClick={() => toast.dismiss(t.id)} href={href} className="flex-1 w-0 p-4">
         <div className="flex items-start">
           <div className="flex-shrink-0 pt-0.5">
             <div className="relative h-10 w-10">
@@ -42,8 +51,19 @@ const UnseenChatToast = ({ senderId, senderImg, senderMessage, senderName, userI
           </div>
 
           <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-gray-900">{senderName}</p>
-            <p className="mt-1 text-sm text-gray-500">{senderMessage}</p>
+            {isGroupChat ? (
+              <>
+                <p className="text-sm font-medium text-gray-900">{chatName}</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {senderName}: {senderMessage}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-gray-900">{senderName}</p>
+                <p className="mt-1 text-sm text-gray-500">{senderMessage}</p>
+              </>
+            )}
           </div>
         </div>
       </a>

@@ -6,15 +6,14 @@ import { toast } from 'react-hot-toast';
 
 import { chatHrefConstructor, toPusherKey } from '@/lib/utils';
 import { pusherClient } from '@/lib/pusher';
-import { Message } from '@/lib/validations/message';
+import { AppUser } from '@/mixins/AppUser';
+import { Message } from '@/mixins/Message';
 import UnseenChatToast from './UnseenChatToast';
 
 type Props = {
   friends: AppUser[];
   userId: string;
 };
-
-type ExtendedMessage = Message & { senderImage: string; senderName: string };
 
 const SidebarChatList = ({ friends, userId }: Props) => {
   const router = useRouter();
@@ -27,7 +26,7 @@ const SidebarChatList = ({ friends, userId }: Props) => {
     pusherClient.subscribe(toPusherKey(`user:${userId}:chats`));
     pusherClient.subscribe(toPusherKey(`user:${userId}:friends`));
 
-    const chatHandler = (message: ExtendedMessage) => {
+    const chatHandler = (message: Message) => {
       const shouldBeNotified = pathname !== `/dashboard/chat/${chatHrefConstructor(userId, message.senderId)}`;
 
       if (!shouldBeNotified) return;
@@ -35,6 +34,7 @@ const SidebarChatList = ({ friends, userId }: Props) => {
       toast.custom((t) => (
         <UnseenChatToast
           t={t}
+          href={`/dashboard/chat/${chatHrefConstructor(userId, message.senderId)}`}
           senderId={message.senderId}
           senderImg={message.senderImage}
           senderMessage={message.text}
@@ -56,15 +56,13 @@ const SidebarChatList = ({ friends, userId }: Props) => {
     return () => {
       pusherClient.unsubscribe(toPusherKey(`user:${userId}:chats`));
       pusherClient.unsubscribe(toPusherKey(`user:${userId}:friends`));
-      pusherClient.unsubscribe(toPusherKey(`user:${userId}:group_chat_invite`));
       pusherClient.unbind('new_message', chatHandler);
       pusherClient.unbind('new_friend', newFriendHandler);
     };
   }, [pathname, userId, router]);
 
   useEffect(() => {
-    // if user enters specific chat, sets all messages as read for this chat (potential bug because of group chats)
-    if (pathname?.includes('chat')) {
+    if (pathname?.includes('/dashboard/chat')) {
       setUnseenMessages((prevMessages) => prevMessages.filter((msg) => !pathname.includes(msg.senderId)));
     }
   }, [pathname]);
