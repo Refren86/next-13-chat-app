@@ -1,3 +1,4 @@
+import { deepParseJson } from './common';
 import { fetchRedis } from './redis';
 
 export const getGroupChatByKey = async (key: string) => {
@@ -12,7 +13,7 @@ export const getGroupChatByKey = async (key: string) => {
     resultObject[key] = value;
   }
 
-  const parsedGroupChat: GroupChat = JSON.parse(JSON.stringify(resultObject));
+  const parsedGroupChat = deepParseJson(JSON.stringify(resultObject));
 
   return parsedGroupChat;
 };

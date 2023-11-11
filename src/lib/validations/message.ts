@@ -5,6 +5,7 @@ export const messageValidator = z.object({
   id: z.string(),
   senderId: z.string(),
   senderImage: z.string(),
+  senderName: z.string(),
   text: z.string(),
   timestamp: z.number(),
 });
@@ -12,6 +13,7 @@ export const messageValidator = z.object({
 export const groupChatMessageValidator = z.object({
   id: z.string(),
   senderId: z.string(),
+  senderName: z.string(),
   senderImage: z.string(),
   text: z.string(),
   timestamp: z.number(),

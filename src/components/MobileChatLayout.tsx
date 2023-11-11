@@ -8,21 +8,30 @@ import { usePathname } from 'next/navigation';
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
+import { SidebarOption } from '@/types/general';
+import { AppUser } from '@/mixins/AppUser';
 import { Icons } from './Icons';
 import SignOutButton from './SignOutButton';
 import SidebarChatList from './SidebarChatList';
-import { SidebarOption } from '@/types/general';
 import { btnVariants, Button } from './base/Button';
 import FriendRequestSidebarOptions from './FriendRequestSidebarOptions';
+import SidebarGroupChatList from './SidebarGroupChatList';
 
 type MobileChatLayoutProps = {
   friends: AppUser[];
+  groupChats: GroupChat[];
   session: Session;
   sidebarOptions: SidebarOption[];
   unseenRequestCount: number;
 };
 
-const MobileChatLayout = ({ friends, session, sidebarOptions, unseenRequestCount }: MobileChatLayoutProps) => {
+const MobileChatLayout = ({
+  friends,
+  groupChats,
+  session,
+  sidebarOptions,
+  unseenRequestCount,
+}: MobileChatLayoutProps) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const pathname = usePathname();
@@ -78,13 +87,11 @@ const MobileChatLayout = ({ friends, session, sidebarOptions, unseenRequestCount
                       </div>
                       <div className="relative mt-6 flex-1 px-4 sm:px-6">
                         {/* Content */}
-
-                        {friends.length > 0 ? (
-                          <div className="text-xs font-semibold leading-6 text-gray-400">Your chats</div>
-                        ) : null}
-
                         <nav className="flex flex-1 flex-col">
                           <ul role="list" className="flex flex-1 flex-col gap-y-7">
+                            <li>
+                              <SidebarGroupChatList groupChats={groupChats} userId={session.user.id} />
+                            </li>
                             <li>
                               <SidebarChatList friends={friends} userId={session.user.id} />
                             </li>
@@ -94,6 +101,7 @@ const MobileChatLayout = ({ friends, session, sidebarOptions, unseenRequestCount
                               <ul role="list" className="-mx-2 mt-2 space-y-1">
                                 {sidebarOptions.map((option) => {
                                   const Icon = Icons[option.Icon];
+
                                   return (
                                     <li key={option.name}>
                                       <Link
@@ -143,7 +151,6 @@ const MobileChatLayout = ({ friends, session, sidebarOptions, unseenRequestCount
                             </li>
                           </ul>
                         </nav>
-
                         {/* content end */}
                       </div>
                     </div>

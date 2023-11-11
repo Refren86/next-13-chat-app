@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { toPusherKey } from '@/lib/utils';
 import { pusherClient } from '@/lib/pusher';
+import { useUnseenRequests } from '@/hooks/useUnseenRequests';
 
 type FriendRequestSidebarOptionsProps = {
   userId: string;
@@ -13,19 +14,11 @@ type FriendRequestSidebarOptionsProps = {
 };
 
 const FriendRequestSidebarOptions = ({ userId, initialUnseenReqCount }: FriendRequestSidebarOptionsProps) => {
-  const [unseenReqCount, setUnseenReqCount] = useState<number>(initialUnseenReqCount);
+  const { unseenReqCount, incomingReqHandler, newFriendHandler } = useUnseenRequests({ initialUnseenReqCount });
 
   useEffect(() => {
     pusherClient.subscribe(toPusherKey(`user:${userId}:friends`));
     pusherClient.subscribe(toPusherKey(`user:${userId}:incoming_friend_requests`));
-
-    const newFriendHandler = () => {
-      setUnseenReqCount((prevCount) => prevCount - 1);
-    }
-
-    const incomingReqHandler = () => {
-      setUnseenReqCount((prevCount) => prevCount + 1);
-    };
 
     pusherClient.bind('new_friend', newFriendHandler);
     pusherClient.bind('incoming_friend_requests', incomingReqHandler);

@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
   await Promise.all([
     await db.hset(chatKey, groupChatData),
-    await db.sadd(`${chatKey}:members`, userId, ...userIds), // probably should be in hash above
+    await db.sadd(`${chatKey}:members`, userId, ...userIds),
     await db.sadd(`user:${userId}:group_chats`, chatKey),
     ...userIds.map(async (id) => {
       await Promise.all([

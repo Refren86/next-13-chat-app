@@ -3,10 +3,12 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { db } from '@/lib/db';
-import { Message, messageValidator } from '@/lib/validations/message';
+import { messageValidator } from '@/lib/validations/message';
 import { generateId } from '@/helpers/common';
 import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
+import { AppUser } from '@/mixins/AppUser';
+import { Message } from '@/mixins/Message';
 
 export async function POST(req: Request) {
   try {
@@ -35,13 +37,14 @@ export async function POST(req: Request) {
 
     const rawSender: string = await fetchRedis('get', `user:${session.user.id}`);
     const sender: AppUser = JSON.parse(rawSender);
-
+    
     const timestamp = Date.now();
 
     const messageData: Message = {
       id: generateId(),
       senderId: session.user.id,
       senderImage: session.user.image || '', // TODO: add default user image
+      senderName: session.user.name || 'Unknown user',
       text,
       timestamp,
     };

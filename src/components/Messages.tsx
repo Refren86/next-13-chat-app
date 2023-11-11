@@ -49,7 +49,7 @@ const Messages = ({ chatId, initialMessages, userId, userImg, isGroupChat }: Pro
         pusherClient.unbind('message_send', sendMessageHandler);
       };
     }
-  }, [chatId]);
+  }, [chatId, isGroupChat]);
 
   return (
     <div

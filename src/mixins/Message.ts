@@ -1,4 +1,4 @@
-import { applyMixins } from "@/lib/utils";
+import { applyMixins } from '@/lib/utils';
 
 export class Message {
   id: string;
@@ -27,10 +27,10 @@ class ChatMessage {
 }
 
 class GroupChatMessage {
-  groupChatName: string;
-  groupChatId: string;
+  groupChatName?: string;
+  groupChatId?: string;
 
-  constructor(groupChatName: string, groupChatId: string) {
+  constructor(groupChatName?: string, groupChatId?: string) {
     this.groupChatName = groupChatName;
     this.groupChatId = groupChatId;
   }

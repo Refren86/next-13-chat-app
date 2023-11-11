@@ -5,16 +5,16 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { messageArrayValidator } from '@/lib/validations/message';
-import Messages from '@/components/Messages';
 import ChatInput from '@/components/ChatInput';
+import { Message } from '@/mixins/Message';
+import { AppUser } from '@/mixins/AppUser';
+import Messages from '@/components/Messages';
 
 type PageProps = {
   params: {
     chatId: string;
   };
 };
-
-// url: /chat/userId1--userId2
 
 async function getChatMessages(chatId: string) {
   try {

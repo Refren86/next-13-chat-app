@@ -7,6 +7,8 @@ import { useForm } from 'react-hook-form';
 
 import Input from './base/Input';
 import { Button } from './base/Button';
+import { AppUser } from '@/mixins/AppUser';
+import { useRouter } from 'next/navigation';
 
 type CreateGroupFormProps = {
   friends: AppUser[];
@@ -17,7 +19,9 @@ type GroupInputs = {
 };
 
 const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
-  const { register, handleSubmit, reset } = useForm<GroupInputs>();
+  const router = useRouter();
+  const { register, handleSubmit } = useForm<GroupInputs>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [selectedFriendsIds, setSelectedFriendsIds] = useState<string[]>([]);
 
@@ -32,12 +36,17 @@ const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
   const submit = async (data: GroupInputs) => {
     const { chatName } = data;
 
-    await axios.post('/api/group-chat/create', {
+    setIsLoading(true);
+
+    const response = await axios.post('/api/group-chat/create', {
       chatName,
       userIds: selectedFriendsIds,
     });
 
-    reset();
+    setIsLoading(false);
+
+    const { chatId } = response.data;
+    router.push(`/dashboard/group-chat/${chatId}`);
   };
 
   return friends.length > 0 ? (
@@ -63,7 +72,7 @@ const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
         ))}
       </div>
 
-      <Button className="mt-6" type="submit" disabled={selectedFriendsIds.length === 0}>
+      <Button className="mt-6" type="submit" disabled={selectedFriendsIds.length === 0 || isLoading}>
         Create group
       </Button>
     </form>

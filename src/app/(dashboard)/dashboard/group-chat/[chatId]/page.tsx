@@ -9,6 +9,7 @@ import ChatInput from '@/components/ChatInput';
 import { getGroupChatByKey } from '@/helpers/get-group-chat-by-key';
 import { Message } from '@/mixins/Message';
 import { AppUser } from '@/mixins/AppUser';
+import GroupChatIconBtn from '@/components/GroupChatIconBtn';
 
 type PageProps = {
   params: {
@@ -48,13 +49,7 @@ const page = async ({ params }: PageProps) => {
       <div className="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
         <div className="flex items-center space-x-4">
           <div className="relative w-8 sm:w-12 h-8 sm:h-12">
-            <div className="flex justify-center items-center w-full h-full rounded-full bg-emerald-700 text-white cursor-pointer">
-              <h2>
-                {groupChatInfo.chatName?.length > 4
-                  ? `${groupChatInfo.chatName.slice(0, 3)}...`
-                  : groupChatInfo.chatName}
-              </h2>
-            </div>
+            <GroupChatIconBtn groupChatInfo={groupChatInfo} groupChatMembers={groupChatMembers} />
           </div>
 
           <div className="flex flex-col leading-tight">

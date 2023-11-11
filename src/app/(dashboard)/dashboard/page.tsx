@@ -7,8 +7,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { chatHrefConstructor } from '@/lib/utils';
-import { Message } from '@/lib/validations/message';
 import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id';
+import { Message } from '@/mixins/Message';
+import { AppUser } from '@/mixins/AppUser';
 
 const DashboardPage = async () => {
   const session = await getServerSession(authOptions);
@@ -17,7 +18,7 @@ const DashboardPage = async () => {
 
   const friends = await getFriendsByUserId(session.user.id);
 
-  const friendsWithLastMessage = await Promise.all(
+  const friendsWithLastMessage: Awaited<(AppUser & { lastMessage: Message | null })[]> = await Promise.all(
     friends.map(async (friend) => {
       const [lastMessage]: string[] = await fetchRedis(
         'zrange',
@@ -32,6 +33,8 @@ const DashboardPage = async () => {
       };
     }),
   );
+
+  // TODO: Add list of recent group chats
 
   return (
     <div className="container py-12">
@@ -63,12 +66,16 @@ const DashboardPage = async () => {
 
               <div>
                 <h4 className="text-lg font-semibold">{friend.name}</h4>
-                <p className="mt-1 max-w-md">
-                  <span className="text-zinc-400">
-                    {friend?.lastMessage?.senderId === session.user.id ? 'You: ' : ''}
-                  </span>
-                  {friend?.lastMessage?.text}
-                </p>
+                {friend?.lastMessage && (
+                  <p className="mt-1 max-w-md">
+                    <span className="text-zinc-400">
+                      {friend?.lastMessage?.senderId === session.user.id
+                        ? 'You: '
+                        : `${friend.lastMessage?.senderName}: `}
+                    </span>
+                    {friend?.lastMessage?.text}
+                  </p>
+                )}
               </div>
             </Link>
           </div>

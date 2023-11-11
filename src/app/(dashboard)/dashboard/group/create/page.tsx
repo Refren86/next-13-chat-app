@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 
 import { authOptions } from '@/lib/auth';
 import CreateGroupForm from '@/components/CreateGroupForm';
+import { AppUser } from '@/mixins/AppUser';
 
 async function getData(userId: string) {
   try {
