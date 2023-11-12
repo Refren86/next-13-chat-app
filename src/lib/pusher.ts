@@ -2,9 +2,9 @@ import PusherServer from 'pusher';
 import PusherClient from 'pusher-js';
 
 function getPusherCredentials() {
-  const appId = process.env.PUSHER_APP_ID;
+  const appId = process.env.NEXT_PUBLIC_PUSHER_APP_ID;
   const key = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
-  const secret = process.env.PUSHER_APP_SECRET;
+  const secret = process.env.NEXT_PUBLIC_PUSHER_APP_SECRET;
 
   console.log('NEXT_PUBLIC_PUSHER_APP_ID', appId);
   console.log('NEXT_PUBLIC_PUSHER_APP_KEY', key);
