@@ -1,9 +1,9 @@
 'use client';
 
-import { Loader2, LogOut } from 'lucide-react';
-import { signOut } from 'next-auth/react';
-import { ButtonHTMLAttributes, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { signOut } from 'next-auth/react';
+import { Loader2, LogOut } from 'lucide-react';
+import { ButtonHTMLAttributes, useState } from 'react';
 
 import { Button } from './base/Button';
 
