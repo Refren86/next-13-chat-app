@@ -13,6 +13,8 @@ export default withAuth(async function middleware(req) {
   const sensitiveRoutes = ['/dashboard'];
   const isAccessingSensitiveRoute = sensitiveRoutes.some((route) => pathname.startsWith(route));
 
+  console.log('isAuth', isAuth);
+
   if (isLoginPage) {
     if (isAuth) {
       // req.url -> base url (http://localhost:3000)
