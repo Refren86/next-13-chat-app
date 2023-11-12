@@ -4,6 +4,7 @@ import { Loader2, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { ButtonHTMLAttributes, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import { Button } from './base/Button';
 
 type Props = {} & ButtonHTMLAttributes<HTMLButtonElement>;
