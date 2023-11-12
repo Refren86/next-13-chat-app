@@ -38,7 +38,9 @@ const SidebarChatList = ({ friends, userId }: Props) => {
 
   return (
     <>
-      {friends.length > 0 && <div className="text-xs font-semibold leading-6 text-gray-400">Chat with friends:</div>}
+      <div className="text-xs font-semibold leading-6 text-gray-400">
+        {friends.length > 0 ? 'Chat with friends:' : 'No chats with friends'}
+      </div>
       <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
         {activeChats.sort().map((friend) => {
           const unseenMessagesCount = unseenMessages.filter((msg) => msg.senderId === friend.id).length;

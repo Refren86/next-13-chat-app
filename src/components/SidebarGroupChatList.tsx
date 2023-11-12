@@ -22,13 +22,12 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // pusherClient.subscribe(toPusherKey(`user:${userId}:group_chat_created`));
     pusherClient.subscribe(toPusherKey(`user:${userId}:group_chat_invite`));
     groupChats.forEach((groupChat) => {
       pusherClient.subscribe(toPusherKey(`group-chat:${groupChat.id}:messages`));
     });
 
-    pusherClient.bind('chat_invite', groupChatInvitationHandler);
+    pusherClient.bind('group_chat_invite', groupChatInvitationHandler);
     pusherClient.bind('new_group_message', newGroupChatMessageHandler);
 
     return () => {
@@ -36,16 +35,14 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
       groupChats.forEach((groupChat) => {
         pusherClient.unsubscribe(toPusherKey(`group-chat:${groupChat.id}:messages`));
       });
-      pusherClient.unbind('chat_invite', groupChatInvitationHandler);
+      pusherClient.unbind('group_chat_invite', groupChatInvitationHandler);
       pusherClient.unbind('new_group_message', newGroupChatMessageHandler);
     };
   }, [pathname, userId, router, groupChats, groupChatInvitationHandler, newGroupChatMessageHandler]);
 
-  console.log('Active chats: ', activeChats);
-
   return (
     <>
-      {groupChats?.length > 0 && <div className="text-xs font-semibold leading-6 text-gray-400">Group chats:</div>}
+      <div className="text-xs font-semibold leading-6 text-gray-400">{groupChats?.length > 0 ? "Group chats:" : "No active group chats"}</div>
       <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
         {activeChats.sort().map((chat) => {
           const unseenMessagesCount = unseenMessages.filter((msg) => msg.groupChatId === chat.id).length;

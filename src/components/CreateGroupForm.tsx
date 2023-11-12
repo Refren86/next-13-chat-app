@@ -4,11 +4,12 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import Input from './base/Input';
 import { Button } from './base/Button';
 import { AppUser } from '@/mixins/AppUser';
-import { useRouter } from 'next/navigation';
+import { createGroupValidator } from '@/lib/validations/create-group';
 
 type CreateGroupFormProps = {
   friends: AppUser[];
@@ -19,8 +20,13 @@ type GroupInputs = {
 };
 
 const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
-  const router = useRouter();
-  const { register, handleSubmit } = useForm<GroupInputs>();
+  const {
+    register,
+    handleSubmit,
+    formState: { isValid },
+  } = useForm<GroupInputs>({
+    resolver: zodResolver(createGroupValidator),
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedFriendsIds, setSelectedFriendsIds] = useState<string[]>([]);
@@ -38,15 +44,12 @@ const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
 
     setIsLoading(true);
 
-    const response = await axios.post('/api/group-chat/create', {
+    await axios.post('/api/group-chat/create', {
       chatName,
       userIds: selectedFriendsIds,
     });
 
     setIsLoading(false);
-
-    const { chatId } = response.data;
-    router.push(`/dashboard/group-chat/${chatId}`);
   };
 
   return friends.length > 0 ? (
@@ -72,7 +75,7 @@ const CreateGroupForm = ({ friends }: CreateGroupFormProps) => {
         ))}
       </div>
 
-      <Button className="mt-6" type="submit" disabled={selectedFriendsIds.length === 0 || isLoading}>
+      <Button className="mt-6" type="submit" disabled={selectedFriendsIds.length === 0 || isLoading || !isValid}>
         Create group
       </Button>
     </form>
