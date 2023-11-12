@@ -8,7 +8,7 @@ import { Button } from './base/Button';
 
 type Props = {} & ButtonHTMLAttributes<HTMLButtonElement>;
 
-const SignOutButton = ({ ...props }: Props) => {
+const SignOutButton = ({ }: Props) => {
   const [isSigningOut, setIsSigningOut] = useState<boolean>(false);
 
   return (
