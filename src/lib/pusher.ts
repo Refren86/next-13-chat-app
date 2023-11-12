@@ -6,9 +6,9 @@ function getPusherCredentials() {
   const key = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
   const secret = process.env.PUSHER_APP_SECRET;
 
-  console.log('PUSHER_APP_ID', appId);
+  console.log('NEXT_PUBLIC_PUSHER_APP_ID', appId);
   console.log('NEXT_PUBLIC_PUSHER_APP_KEY', key);
-  console.log('PUSHER_APP_SECRET', secret);
+  console.log('NEXT_PUBLIC_PUSHER_APP_SECRET', secret);
 
   if (!appId) {
     throw new Error('Missing pusher appId');
