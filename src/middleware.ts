@@ -17,11 +17,11 @@ export default withAuth(async function middleware(req) {
 
   if (isLoginPage) {
     if (isAuth) {
-      // req.url -> base url (http://localhost:3000)
+      // req.url -> base url
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
-    return NextResponse.next(); // same as next in node
+    return NextResponse.next();
   }
 
   if (!isAuth && isAccessingSensitiveRoute) {
