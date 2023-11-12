@@ -52,9 +52,9 @@ export async function POST(req: Request) {
     const message = messageValidator.parse(messageData);
 
     // notify client about new message
-    pusherServer.trigger(toPusherKey(`chat:${chatId}`), 'message_send', message);
+    await pusherServer.trigger(toPusherKey(`chat:${chatId}`), 'message_send', message);
 
-    pusherServer.trigger(toPusherKey(`user:${friendId}:chats`), 'new_message', {
+    await pusherServer.trigger(toPusherKey(`user:${friendId}:chats`), 'new_message', {
       ...message,
       senderImage: sender.image,
       senderName: sender.name,

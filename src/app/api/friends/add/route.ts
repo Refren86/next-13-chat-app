@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     // notify client about friend request (check FriendRequests.tsx)
-    pusherServer.trigger(toPusherKey(`user:${idToAdd}:incoming_friend_requests`), 'incoming_friend_requests', {
+    await pusherServer.trigger(toPusherKey(`user:${idToAdd}:incoming_friend_requests`), 'incoming_friend_requests', {
       requesterId: session.user.id,
       requesterEmail: session.user.email,
     } as IncomingFriendRequest);

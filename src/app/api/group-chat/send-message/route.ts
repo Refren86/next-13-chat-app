@@ -39,10 +39,10 @@ export async function POST(req: Request) {
     const message = groupChatMessageValidator.parse(messageData);
 
     // notify client about new message
-    pusherServer.trigger(toPusherKey(`group-chat:${groupChatId}`), 'message_send', message); // TODO: use this!
+    await pusherServer.trigger(toPusherKey(`group-chat:${groupChatId}`), 'message_send', message); // TODO: use this!
 
     // all chat members should be notified
-    pusherServer.trigger(toPusherKey(`group-chat:${groupChatId}:messages`), 'new_group_message', {
+    await pusherServer.trigger(toPusherKey(`group-chat:${groupChatId}:messages`), 'new_group_message', {
       ...message,
       senderImage: session.user.image,
       senderName: session.user.name,
