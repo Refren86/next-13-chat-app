@@ -49,9 +49,9 @@ const Modal = ({ isOpen, title, children, onClose }: ModalProps) => {
                 {title}
               </Dialog.Title>
 
-              <div className="mt-2 border-t border-b border-zinc-500">{children}</div>
+              <div className="mt-2 border-t border-zinc-500">{children}</div>
 
-              <div className="mt-4">
+              <div className="mt-4 flex justify-end">
                 <button
                   type="button"
                   className="inline-flex justify-center px-4 py-2 text-sm text-red-900 bg-red-100 border border-transparent rounded-md hover:bg-red-200 duration-300"

@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     await db.hset(chatKey, groupChatData),
     await db.sadd(`${chatKey}:members`, userId, ...userIds),
     await db.sadd(`user:${userId}:group_chats`, chatKey),
+    await pusherServer.trigger(toPusherKey(`user:${userId}:group_chat_invite`), 'chat_invite', groupChatData),
     ...userIds.map(async (id) => {
       await Promise.all([
         db.sadd(`user:${id}:group_chats`, chatKey),

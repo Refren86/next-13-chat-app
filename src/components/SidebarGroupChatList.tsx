@@ -22,8 +22,8 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
   const pathname = usePathname();
 
   useEffect(() => {
+    // pusherClient.subscribe(toPusherKey(`user:${userId}:group_chat_created`));
     pusherClient.subscribe(toPusherKey(`user:${userId}:group_chat_invite`));
-
     groupChats.forEach((groupChat) => {
       pusherClient.subscribe(toPusherKey(`group-chat:${groupChat.id}:messages`));
     });
@@ -40,6 +40,8 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
       pusherClient.unbind('new_group_message', newGroupChatMessageHandler);
     };
   }, [pathname, userId, router, groupChats, groupChatInvitationHandler, newGroupChatMessageHandler]);
+
+  console.log('Active chats: ', activeChats);
 
   return (
     <>
