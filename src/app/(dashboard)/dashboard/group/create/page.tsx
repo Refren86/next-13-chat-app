@@ -8,7 +8,7 @@ import { AppUser } from '@/mixins/AppUser';
 
 async function getData(userId: string) {
   try {
-    const friends = await axios.post('http://localhost:3000/api/friends/getAll', { userId });
+    const friends = await axios.post(process.env.NEXT_PUBLIC_HOST! + '/api/friends/getAll', { userId });
 
     return friends.data;
   } catch (error) {
