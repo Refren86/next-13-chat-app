@@ -1,8 +1,8 @@
+import toast from 'react-hot-toast';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Message } from '@/mixins/Message';
-import toast from 'react-hot-toast';
 import UnseenChatToast from '@/components/UnseenChatToast';
 
 type UseGroupChatUnseenMessagesArgs = {
@@ -22,27 +22,30 @@ export const useGroupChatUnseenMessages = ({ userId }: UseGroupChatUnseenMessage
     }
   }, [pathname]);
 
-  const newGroupChatMessageHandler = (message: Message) => {
-    const shouldBeNotified = pathname !== `/dashboard/group-chat/${message.groupChatId}`;
+  const newGroupChatMessageHandler = useCallback(
+    (message: Message) => {
+      const shouldBeNotified = pathname !== `/dashboard/group-chat/${message.groupChatId}`;
 
-    if (!shouldBeNotified) return;
+      if (!shouldBeNotified) return;
 
-    toast.custom((t) => (
-      <UnseenChatToast
-        t={t}
-        href={`/dashboard/group-chat/${message.groupChatId}`}
-        senderId={message.senderId}
-        senderImg={message.senderImage}
-        senderMessage={message.text}
-        senderName={message.senderName}
-        userId={userId}
-        isGroupChat
-        chatName={message.groupChatName || ''}
-      />
-    ));
+      toast.custom((t) => (
+        <UnseenChatToast
+          t={t}
+          href={`/dashboard/group-chat/${message.groupChatId}`}
+          senderId={message.senderId}
+          senderImg={message.senderImage}
+          senderMessage={message.text}
+          senderName={message.senderName}
+          userId={userId}
+          isGroupChat
+          chatName={message.groupChatName || ''}
+        />
+      ));
 
-    setUnseenMessages((prevMessages) => [...prevMessages, message]);
-  };
+      setUnseenMessages((prevMessages) => [...prevMessages, message]);
+    },
+    [pathname, userId],
+  );
 
   return {
     unseenMessages,

@@ -6,6 +6,7 @@ import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
+import { AppUser } from '@/mixins/AppUser';
 
 export async function POST(req: Request) {
   try {

@@ -1,4 +1,5 @@
 import { fetchRedis } from './redis';
+import { AppUser } from '@/mixins/AppUser';
 
 export const getFriendsByUserId = async (id: string) => {
   // get all ids and enrich them with users data

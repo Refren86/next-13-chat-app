@@ -34,7 +34,7 @@ const SidebarChatList = ({ friends, userId }: Props) => {
       pusherClient.unbind('new_message', newChatMessageHandler);
       pusherClient.unbind('new_friend', newFriendHandler);
     };
-  }, [pathname, userId, router]);
+  }, [pathname, userId, router, newFriendHandler, newChatMessageHandler]);
 
   return (
     <>

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { fetchRedis } from '@/helpers/redis';
 import FriendRequests from '@/components/FriendRequests';
+import { AppUser } from '@/mixins/AppUser';
 
 const page = async () => {
   const session = await getServerSession(authOptions);

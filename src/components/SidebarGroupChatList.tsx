@@ -39,7 +39,7 @@ const SidebarGroupChatList = ({ groupChats, userId }: Props) => {
       pusherClient.unbind('chat_invite', groupChatInvitationHandler);
       pusherClient.unbind('new_group_message', newGroupChatMessageHandler);
     };
-  }, [pathname, userId, router, groupChats]);
+  }, [pathname, userId, router, groupChats, groupChatInvitationHandler, newGroupChatMessageHandler]);
 
   return (
     <>

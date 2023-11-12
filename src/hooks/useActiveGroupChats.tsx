@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import UnseenChatToast from '@/components/UnseenChatToast';
 
@@ -11,7 +11,7 @@ type UseActiveGroupChatsArgs = {
 const useActiveGroupChats = ({ groupChats, userId }: UseActiveGroupChatsArgs) => {
   const [activeChats, setActiveChats] = useState<GroupChat[]>(groupChats);
 
-  const groupChatInvitationHandler = (chatInvitation: GroupChat) => {
+  const groupChatInvitationHandler = useCallback((chatInvitation: GroupChat) => {
     toast.custom((t) => (
       <UnseenChatToast
         t={t}
@@ -25,7 +25,7 @@ const useActiveGroupChats = ({ groupChats, userId }: UseActiveGroupChatsArgs) =>
     ));
 
     setActiveChats((prevChats) => [...prevChats, chatInvitation]);
-  };
+  }, [userId]);
 
   return {
     activeChats,

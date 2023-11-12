@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { User } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { toPusherKey } from '@/lib/utils';
 import { pusherClient } from '@/lib/pusher';
@@ -30,7 +30,7 @@ const FriendRequestSidebarOptions = ({ userId, initialUnseenReqCount }: FriendRe
       pusherClient.unbind('new_friend', newFriendHandler);
       pusherClient.unbind('incoming_friend_requests', incomingReqHandler);
     };
-  }, [userId]);
+  }, [userId, newFriendHandler, incomingReqHandler]);
 
   return (
     <Link

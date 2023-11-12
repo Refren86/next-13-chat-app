@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 
 import { db } from './db';
 import { fetchRedis } from '@/helpers/redis';
+import { AppUser } from '@/mixins/AppUser';
 
 function getGoogleCredentials() {
   const clientId = process.env.GOOGLE_CLIENT_ID;

@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Message } from '@/mixins/Message';
 import { chatHrefConstructor } from '@/lib/utils';
@@ -21,25 +21,28 @@ export const useChatUnseenMessages = ({ userId }: UseChatUnseenMessagesArgs) => 
     }
   }, [pathname]);
 
-  const newChatMessageHandler = (message: Message) => {
-    const shouldBeNotified = pathname !== `/dashboard/chat/${chatHrefConstructor(userId, message.senderId)}`;
+  const newChatMessageHandler = useCallback(
+    (message: Message) => {
+      const shouldBeNotified = pathname !== `/dashboard/chat/${chatHrefConstructor(userId, message.senderId)}`;
 
-    if (!shouldBeNotified) return;
+      if (!shouldBeNotified) return;
 
-    toast.custom((t) => (
-      <UnseenChatToast
-        t={t}
-        href={`/dashboard/chat/${chatHrefConstructor(userId, message.senderId)}`}
-        senderId={message.senderId}
-        senderImg={message.senderImage}
-        senderMessage={message.text}
-        senderName={message.senderName}
-        userId={userId}
-      />
-    ));
+      toast.custom((t) => (
+        <UnseenChatToast
+          t={t}
+          href={`/dashboard/chat/${chatHrefConstructor(userId, message.senderId)}`}
+          senderId={message.senderId}
+          senderImg={message.senderImage}
+          senderMessage={message.text}
+          senderName={message.senderName}
+          userId={userId}
+        />
+      ));
 
-    setUnseenMessages((prevMessages) => [...prevMessages, message]);
-  };
+      setUnseenMessages((prevMessages) => [...prevMessages, message]);
+    },
+    [pathname, userId],
+  );
 
   return {
     unseenMessages,
